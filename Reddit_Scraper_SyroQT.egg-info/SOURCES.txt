@@ -1,0 +1,6 @@
+README.md
+setup.py
+Reddit_Scraper_SyroQT.egg-info/PKG-INFO
+Reddit_Scraper_SyroQT.egg-info/SOURCES.txt
+Reddit_Scraper_SyroQT.egg-info/dependency_links.txt
+Reddit_Scraper_SyroQT.egg-info/top_level.txt
