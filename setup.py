@@ -11,6 +11,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
+    url="https://github.com/SyroQT/reddit-scraper",
     install_requires=["bs4", "cleantext", "requests", "pandas"],
     classifiers=[
         "Programming Language :: Python :: 3",
