@@ -4,7 +4,7 @@ Returns a dataframe with each entry as a post. Each post is cleaned with `clean-
 ## Usage
 Install using pip
 ```python
-pip install
+pip install git+https://github.com/SyroQT/reddit-scraper.git
 ```
 Import it
 ```python
