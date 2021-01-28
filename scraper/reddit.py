@@ -4,11 +4,11 @@ import pandas as pd
 import requests
 
 
-def scrape_sub(sub_name: str, words_to_scrape: int) -> pd.DataFrame:
+def scrape_sub(sub_name: str, posts_to_scrape: int) -> pd.DataFrame:
     """Scan reddit for posts ignoring promotions
     --------------------------------------------
     sub_name (str): sub name to scrape (without the r/)
-    words_to_scrape (int): number of words to get. Will be a bit higher then specified
+    posts_to_scrape (int): number of posts to get.
     --------------------------------------------
     Return:
         pd.DataFrame
@@ -17,10 +17,10 @@ def scrape_sub(sub_name: str, words_to_scrape: int) -> pd.DataFrame:
     count = "?count="
     after = ""  # Id for building a link
     page = 0  # Current page
-    cur_words = 0
-    data = []
+    cur_posts = 0
+    data = {"title": [], "content": []}
     print("Now scraping: ", sub_name)
-    while cur_words <= words_to_scrape:
+    while cur_posts < posts_to_scrape:
 
         url = base_url + sub_name + count + str(page) + after
         resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -33,21 +33,36 @@ def scrape_sub(sub_name: str, words_to_scrape: int) -> pd.DataFrame:
             if "promoted" in post["class"]:
                 continue
 
-            post_url = post["data-url"].replace("/r/" + sub_name, "")
+            post_url = post["data-url"].lower().replace("/r/" + sub_name, "")
+            post_id = post["data-fullname"]
 
+            print(base_url + sub_name + post_url)
             post_resp = requests.get(
                 base_url + sub_name + post_url, headers={"User-Agent": "Mozilla/5.0"}
             )
             post_soup = BeautifulSoup(post_resp.text, "html.parser")
-            # Post body could be empty
-            try:
-                text = post_soup.find_all("div", "usertext-body")[1].text
-            except IndexError:
+
+            post_raw = post_soup.find("div", "id-" + post_id)
+            post_title = post_raw.find("a", "title")
+            post_body = post_raw.find("div", "md")
+            # Handling of missing data
+            # Title and body is missig so skip
+            if not post_body and not post_title:
                 continue
 
-            data.append(
+            if post_title:
+                post_title = post_title.text
+            else:
+                post_title = ""
+            if post_body:
+                post_body = post_body.text
+            else:
+                post_body = ""
+            print(post_title, post_body)
+
+            data["title"].append(
                 clean(
-                    text,
+                    post_title,
                     no_line_breaks=True,
                     no_urls=True,
                     no_emails=True,
@@ -58,10 +73,24 @@ def scrape_sub(sub_name: str, words_to_scrape: int) -> pd.DataFrame:
                     no_punct=True,
                 )
             )
-            cur_words += len(text.split(" "))
+            data["content"].append(
+                clean(
+                    post_title,
+                    no_line_breaks=True,
+                    no_urls=True,
+                    no_emails=True,
+                    no_phone_numbers=True,
+                    no_numbers=True,
+                    no_digits=True,
+                    no_currency_symbols=True,
+                    no_punct=True,
+                )
+            )
 
-            print(cur_words, " out of ", words_to_scrape)
-            if cur_words > words_to_scrape:
+            cur_posts += 1
+            print(cur_posts, " out of ", posts_to_scrape)
+
+            if cur_posts >= posts_to_scrape:
                 break
 
         # Find the last post id for the links
@@ -73,4 +102,4 @@ def scrape_sub(sub_name: str, words_to_scrape: int) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    scrape_sub("ask", 300)
+    scrape_sub("askreddit", 300)
