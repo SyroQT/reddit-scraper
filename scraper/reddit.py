@@ -6,11 +6,14 @@ import pandas as pd
 import requests
 
 
-def scrape_sub(sub_name: str = None, posts_to_scrape: int = 1) -> pd.DataFrame:
+def scrape_sub(
+    sub_name: str = None, posts_to_scrape: int = 1, links: bool = False
+) -> pd.DataFrame:
     """Scan reddit for posts ignoring promotions
     --------------------------------------------
     sub_name (str): sub name to scrape (without the r/)
-    posts_to_scrape (int): number of posts to get.
+    posts_to_scrape (int): number of posts to get
+    links (bool): set True to show links
     --------------------------------------------
     Return:
         pd.DataFrame
@@ -41,7 +44,8 @@ def scrape_sub(sub_name: str = None, posts_to_scrape: int = 1) -> pd.DataFrame:
             post_url = post["data-url"].lower().replace("/r/" + sub_name, "")
             post_id = post["data-fullname"]
 
-            print(base_url + sub_name + post_url)
+            if links:
+                print(base_url + sub_name + post_url)
             post_resp = requests.get(
                 base_url + sub_name + post_url, headers={"User-Agent": "Mozilla/5.0"}
             )
@@ -63,7 +67,6 @@ def scrape_sub(sub_name: str = None, posts_to_scrape: int = 1) -> pd.DataFrame:
                 post_body = post_body.text
             else:
                 post_body = ""
-            print(post_title, post_body)
 
             data["title"].append(
                 clean(
@@ -80,7 +83,7 @@ def scrape_sub(sub_name: str = None, posts_to_scrape: int = 1) -> pd.DataFrame:
             )
             data["content"].append(
                 clean(
-                    post_title,
+                    post_body,
                     no_line_breaks=True,
                     no_urls=True,
                     no_emails=True,
@@ -107,3 +110,7 @@ def scrape_sub(sub_name: str = None, posts_to_scrape: int = 1) -> pd.DataFrame:
 
     df = pd.DataFrame(data)
     return df
+
+
+if __name__ == "__main__":
+    scrape_sub("askreddit", 3)
