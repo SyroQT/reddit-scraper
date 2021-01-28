@@ -1,3 +1,4 @@
+from os import link
 import sys
 
 from bs4 import BeautifulSoup
@@ -51,10 +52,13 @@ def scrape_sub(
                 base_url + sub_name + post_url, headers={"User-Agent": "Mozilla/5.0"}
             )
             post_soup = BeautifulSoup(post_resp.text, "html.parser")
-
-            post_raw = post_soup.find("div", "id-" + post_id)
-            post_title = post_raw.find("a", "title")
-            post_body = post_raw.find("div", "md")
+            try:
+                post_raw = post_soup.find("div", "id-" + post_id)
+                post_title = post_raw.find("a", "title")
+                post_body = post_raw.find("div", "md")
+            except:
+                print("Can't fetch data, continuing...")
+                continue
             # Handling of missing data
             # Title and body is missig so skip
             if not post_body and not post_title:
@@ -114,4 +118,4 @@ def scrape_sub(
 
 
 if __name__ == "__main__":
-    scrape_sub("AskReddit", 3, links=True)
+    scrape_sub(sub_name="askfeminists", words_to_scrape=3, links=True)
