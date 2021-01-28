@@ -107,7 +107,3 @@ def scrape_sub(sub_name: str, posts_to_scrape: int) -> pd.DataFrame:
 
     df = pd.DataFrame(data)
     return df
-
-
-if __name__ == "__main__":
-    scrape_sub("df", 300)
