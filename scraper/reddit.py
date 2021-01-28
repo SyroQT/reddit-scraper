@@ -7,12 +7,12 @@ import requests
 
 
 def scrape_sub(
-    sub_name: str = None, posts_to_scrape: int = 1, links: bool = False
+    sub_name: str = None, words_to_scrape: int = 1, links: bool = False
 ) -> pd.DataFrame:
     """Scan reddit for posts ignoring promotions
     --------------------------------------------
     sub_name (str): sub name to scrape (without the r/)
-    posts_to_scrape (int): number of posts to get
+    words_to_scrape (int): number of posts to get
     links (bool): set True to show links
     --------------------------------------------
     Return:
@@ -23,10 +23,10 @@ def scrape_sub(
     count = "?count="
     after = ""  # Id for building a link
     page = 0  # Current page
-    cur_posts = 0
+    cur_words = 0
     data = {"title": [], "content": []}
     print("Now scraping: ", sub_name)
-    while cur_posts < posts_to_scrape:
+    while cur_words < words_to_scrape:
 
         url = base_url + sub_name + count + str(page) + after
         try:
@@ -96,10 +96,10 @@ def scrape_sub(
                 )
             )
 
-            cur_posts += 1
-            print(cur_posts, " out of ", posts_to_scrape)
+            cur_words += len((post_title + post_body).split(" "))
+            print(cur_words, " out of ", words_to_scrape)
 
-            if cur_posts >= posts_to_scrape:
+            if cur_words >= words_to_scrape:
                 break
 
         # Find the last post id for the links
@@ -111,3 +111,7 @@ def scrape_sub(
 
     df = pd.DataFrame(data)
     return df
+
+
+if __name__ == "__main__":
+    scrape_sub("AskReddit", 3, links=True)
