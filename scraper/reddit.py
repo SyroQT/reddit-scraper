@@ -18,6 +18,7 @@ def scrape_sub(
     Return:
         pd.DataFrame
     """
+    sub_name = sub_name.lower()
     base_url = "https://old.reddit.com/r/"
     count = "?count="
     after = ""  # Id for building a link
@@ -40,12 +41,12 @@ def scrape_sub(
 
             if "promoted" in post["class"]:
                 continue
-
             post_url = post["data-url"].lower().replace("/r/" + sub_name, "")
             post_id = post["data-fullname"]
 
             if links:
-                print(base_url + sub_name + post_url)
+                print(base_url + post_url)
+
             post_resp = requests.get(
                 base_url + sub_name + post_url, headers={"User-Agent": "Mozilla/5.0"}
             )
@@ -110,7 +111,3 @@ def scrape_sub(
 
     df = pd.DataFrame(data)
     return df
-
-
-if __name__ == "__main__":
-    scrape_sub("askreddit", 3)
