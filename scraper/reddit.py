@@ -1,3 +1,5 @@
+import sys
+
 from bs4 import BeautifulSoup
 from cleantext import clean
 import pandas as pd
@@ -23,9 +25,12 @@ def scrape_sub(sub_name: str, posts_to_scrape: int) -> pd.DataFrame:
     while cur_posts < posts_to_scrape:
 
         url = base_url + sub_name + count + str(page) + after
-        resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-        soup = BeautifulSoup(resp.text, "html.parser")
-        posts = soup.find_all("div", "thing")
+        try:
+            resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+            soup = BeautifulSoup(resp.text, "html.parser")
+            posts = soup.find_all("div", "thing")
+        except:
+            sys.exit("Subreddit probably does not exist :(")
 
         # Go inside each post and read it
         for post in posts:
@@ -94,7 +99,10 @@ def scrape_sub(sub_name: str, posts_to_scrape: int) -> pd.DataFrame:
                 break
 
         # Find the last post id for the links
-        after = "&after=" + str(posts[-1]["data-fullname"])
+        try:
+            after = "&after=" + str(posts[-1]["data-fullname"])
+        except:
+            sys.exit("Something went wrong. Check our arguments")
         page += 25
 
     df = pd.DataFrame(data)
@@ -102,4 +110,4 @@ def scrape_sub(sub_name: str, posts_to_scrape: int) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    scrape_sub("askreddit", 300)
+    scrape_sub("df", 300)
