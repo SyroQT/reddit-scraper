@@ -39,7 +39,7 @@ def scrape_sub(
         # Go inside each post and read it
         for post in posts:
 
-            if "promoted" in post["class"]:
+            if "promoted" in post["class"] or "stickied " in post["class"]:
                 continue
             post_url = post["data-url"].lower().replace("/r/" + sub_name, "")
             post_id = post["data-fullname"]
