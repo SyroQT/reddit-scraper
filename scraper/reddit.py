@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 
 
-def scrape_sub(sub_name: str, posts_to_scrape: int) -> pd.DataFrame:
+def scrape_sub(sub_name: str = None, posts_to_scrape: int = 1) -> pd.DataFrame:
     """Scan reddit for posts ignoring promotions
     --------------------------------------------
     sub_name (str): sub name to scrape (without the r/)
